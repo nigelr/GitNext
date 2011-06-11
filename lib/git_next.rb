@@ -16,13 +16,12 @@ class GitNext
         position = File.read(current_path + CONFIG_FILE).to_i
         position -=1
         git.checkout "master~#{position}"
+        File.open(current_path + CONFIG_FILE, "w") { |f| f.write position }
       end
     else
       git_log = git.log.map(&:sha)
       git.checkout git_log.last
-      File.open(current_path + CONFIG_FILE, "w") do |f|
-        f.write git_log.length-1
-      end
+      File.open(current_path + CONFIG_FILE, "w") { |f| f.write git_log.length-1 }
     end
   end
 end

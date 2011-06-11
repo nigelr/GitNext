@@ -14,6 +14,8 @@ describe GitNext do
     `/usr/bin/tar -xf spec/fixtures/git_next_sample.tar -C /tmp`
   end
 
+  it "should warn if not a git directory"
+
   context "never run gitnext" do
     before { GitNext.run @sample_dir }
 
@@ -22,11 +24,9 @@ describe GitNext do
     it("should create have value of 4") { File.read(@sample_dir + "/.git/gitnext.config").should == "3" }
 
     context "have run gitnext before" do
-      it "should go to next version" do
-        GitNext.run @sample_dir
-        File.read(@sample_dir + "/file_1").should == "b"
-      end
-      it "a_file should have '4'"
+      before { GitNext.run @sample_dir }
+      it("should go to next version") { File.read(@sample_dir + "/file_1").should == "b" }
+      it("config should have 2") { File.read(@sample_dir + "/.git/gitnext.config").should == "2" }
       
     end
 
@@ -34,7 +34,6 @@ describe GitNext do
       it "should go to top commit" do
         GitNext.run(@sample_dir, "top")
         File.read(@sample_dir + "/.git/gitnext.config").should == "0"
-
       end
     end
   end
