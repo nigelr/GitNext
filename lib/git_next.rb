@@ -14,22 +14,25 @@ class GitNext
 
   def self.run current_path, args=[]
     @current_path = current_path
+    if File.exists? File.join @current_path, ".git"
+      git = Git.open @current_path
 
-    git = Git.open @current_path
-
-    if File.exist?(@current_path + CONFIG_FILE)
-      if args == "top"
-#        git.checkout "master"
-        config_save_position 0
+      if File.exist?(@current_path + CONFIG_FILE)
+        if args == "top"
+          git.checkout "master"
+          config_save_position 0
+        else
+          position = config_read_position - 1
+          git.checkout "master~#{position}"
+          config_save_position position
+        end
       else
-        position = config_read_position - 1
-        git.checkout "master~#{position}"
-        config_save_position position
+        git_log = git.log.map(&:sha)
+        git.checkout git_log.last
+        config_save_position git_log.length-1
       end
     else
-      git_log = git.log.map(&:sha)
-      git.checkout git_log.last
-      config_save_position git_log.length-1
+      puts "Not a git directory"
     end
   end
 end
