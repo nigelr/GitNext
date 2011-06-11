@@ -17,14 +17,14 @@ describe GitNext do
   context "never run gitnext" do
     before { GitNext.run @sample_dir }
 
-    it("should go to last commit") { File.read(@sample_dir + "/a_file").should == "1" }
+    it("should go to last commit") { File.read(@sample_dir + "/file_1").should == "a" }
     it("should create config file") { File.exists?(@sample_dir + "/.git/gitnext.config").should be_true }
     it("should create have value of 4") { File.read(@sample_dir + "/.git/gitnext.config").should == "3" }
 
     context "have run gitnext before" do
       it "should go to next version" do
         GitNext.run @sample_dir
-        File.read(@sample_dir + "/a_file").should == "2"
+        File.read(@sample_dir + "/file_1").should == "b"
       end
       it "a_file should have '4'"
       
