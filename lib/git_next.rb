@@ -8,6 +8,10 @@ class GitNext
     File.open(@current_path + CONFIG_FILE, "w") { |f| f.write value }
   end
 
+  def self.config_read_position
+    File.read(@current_path + CONFIG_FILE).to_i
+  end
+
   def self.run current_path, args=[]
     @current_path = current_path
 
@@ -16,11 +20,9 @@ class GitNext
     if File.exist?(@current_path + CONFIG_FILE)
       if args == "top"
 #        git.checkout "master"
-
         config_save_position 0
       else
-        position = File.read(@current_path + CONFIG_FILE).to_i
-        position -=1
+        position = config_read_position - 1
         git.checkout "master~#{position}"
         config_save_position position
       end
