@@ -4,64 +4,63 @@ require "git"
 
 describe GitNext do
 
-  before { @sample_dir = "/tmp/git_next_sample" }
+  let(:sample_dir) { '/tmp/git_next_sample' }
 
   context "not in git repo" do
     before do
-      FileUtils::rm_rf @sample_dir if File.exists? @sample_dir
-      Dir.mkdir @sample_dir
+      FileUtils::rm_rf sample_dir if File.exists?(sample_dir)
+      Dir.mkdir sample_dir
     end
 
-    it("should warn if not a git directory") { lambda { GitNext.run @sample_dir }.should_not raise_error }
+    it("should warn if not a git directory") { lambda { GitNext.run sample_dir }.should_not raise_error }
   end
 
   context "in a git repo" do
+    let(:file_1) { File.join(sample_dir, 'file_1') }
+    let(:file_2) { File.join(sample_dir, 'file_2') }
+    let(:gitnext_config) { File.join sample_dir, ".git", "gitnext.config" }
+
     before(:each) do
+      FileUtils::rm_rf(sample_dir) if File.exists?(sample_dir)
 
-      @file_1 = File.join(@sample_dir, "file_1")
-      @file_2 = File.join(@sample_dir, "file_2")
-      @gitnext_config = File.join @sample_dir, ".git", "gitnext.config"
-
-      FileUtils::rm_rf @sample_dir if File.exists? @sample_dir
-
-      Dir.mkdir @sample_dir
-      git = Git.init @sample_dir
-      File.open(@file_1, "w") { |f| f.write "a" }
+      Dir.mkdir sample_dir
+      git = Git.init sample_dir
+      File.open(file_1, "w") { |f| f.write "a" }
       git.add(".")
       git.commit "commit #1"
-      File.open(@file_1, "w") { |f| f.write "b" }
+      File.open(file_1, "w") { |f| f.write "b" }
       git.add(".")
       git.commit "commit #2"
-      File.open(@file_1, "w") { |f| f.write "c" }
-      File.open(@file_2, "w") { |f| f.write "y" }
+      File.open(file_1, "w") { |f| f.write "c" }
+      File.open(file_2, "w") { |f| f.write "y" }
       git.add(".")
       git.commit "commit #3"
-      File.open(@file_1, "w") { |f| f.write "d" }
-      File.open(@file_2, "w") { |f| f.write "z" }
+      File.open(file_1, "w") { |f| f.write "d" }
+      File.open(file_2, "w") { |f| f.write "z" }
       git.add(".")
       git.commit "commit #4"
     end
 
     context "never run gitnext" do
-      before { GitNext.run @sample_dir }
+      before { GitNext.run sample_dir }
 
-      it("should go to last commit") { File.read(@file_1).should == "a" }
-      it("should create config file") { File.exists?(@gitnext_config).should be_true }
-      it("should create have value of 4") { File.read(@gitnext_config).should == "3" }
+      it("should go to last commit") { File.read(file_1).should == "a" }
+      it("should create config file") { File.exists?(gitnext_config).should be_true }
+      it("should create have value of 4") { File.read(gitnext_config).should == "3" }
 
       context "have run gitnext before" do
-        before { GitNext.run @sample_dir }
-        it("should go to next version") { File.read(@file_1).should == "b" }
-        it("config should have 2") { File.read(@gitnext_config).should == "2" }
+        before { GitNext.run sample_dir }
+        it("should go to next version") { File.read(file_1).should == "b" }
+        it("config should have 2") { File.read(gitnext_config).should == "2" }
 
       end
 
       context "top" do
-        before { GitNext.run(@sample_dir, "top") }
+        before { GitNext.run(sample_dir, "top") }
 
-        it("should go to top commit") { File.read(@gitnext_config).should == "0" }
+        it("should go to top commit") { File.read(gitnext_config).should == "0" }
         it "should be at master" do
-          File.read(@file_1).should == "d"
+          File.read(file_1).should == "d"
         end
       end
     end
