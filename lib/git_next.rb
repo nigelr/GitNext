@@ -11,21 +11,22 @@ class GitNext
       @git = Git.open @current_path
 
       if File.exist?(@current_path + CONFIG_FILE)
-        if args == "top"
-          puts "Moving to Top"
-          go_to 0
-        elsif args == "prev"
-          position = config_read_position
-          go_to position + 1 if position < get_repo_length
-        elsif args == "bottom"
-          puts "Moving to Bottom"
-          go_to get_repo_length
-        else # next
-          puts "Moving to Next"
-          position = config_read_position
-          go_to position - 1 if position > 0
+        case args
+          when "top"
+            puts "Moving to Top"
+            go_to 0
+          when "prev"
+            position = config_read_position
+            go_to position + 1 if position < get_repo_length
+          when "bottom"
+            puts "Moving to Bottom"
+            go_to get_repo_length
+          else # next
+            puts "Moving to Next"
+            position = config_read_position
+            go_to position - 1 if position > 0
         end
-      else
+      else # initialise
         go_to get_repo_length
       end
     else
@@ -49,12 +50,12 @@ class GitNext
     @git.checkout "master"
     ret = @git.log.map(&:sha).length - 1
     @git.checkout current_postion
-    ret 
+    ret
   end
 
   def self.go_to position
     @git.checkout "master#{"~#{position}" if position > 0}"
     config_save_position position
   end
-  
+
 end
