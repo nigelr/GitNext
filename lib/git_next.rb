@@ -72,12 +72,7 @@ class GitNext
   end
 
   def self.get_repo_length
-    #TODO clean this
-    current_postion = @git.log.first.sha
-    @git.checkout "master"
-    ret = @git.log.map(&:sha).length - 1
-    @git.checkout current_postion
-    ret
+    @git.gblob('master').log.map(&:sha).length - 1
   end
 
   def self.go_to position
