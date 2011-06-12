@@ -41,17 +41,35 @@ describe GitNext do
       @git.commit "commit #4"
     end
 
-    context "never run gitnext" do
+    context "have never run gitnext" do
       before { GitNext.run sample_dir }
 
       it("should go to last commit") { File.read(file_1).should == "a" }
       it("should create config file") { File.exists?(gitnext_config).should be_true }
       it("should create have value of 4") { File.read(gitnext_config).should == "3" }
 
-      context "have run gitnext before" do
+      context "after gitnext initialised" do
         before { GitNext.run sample_dir }
         it("should go to next version") { File.read(file_1).should == "b" }
         it("config should have 2") { File.read(gitnext_config).should == "2" }
+      end
+
+      context "should not go past top" do
+        before do
+          GitNext.run(sample_dir, "top")
+          GitNext.run sample_dir
+        end
+        it("should be 0") { File.read(gitnext_config).should == "0" }
+        it("should be last commit") { File.read(file_1).should == "d" }
+      end
+
+      context "should not go past bottom" do
+        before do
+          GitNext.run sample_dir, "bottom"
+          GitNext.run sample_dir, "prev"
+        end
+        it("should be 3") { File.read(gitnext_config).should == "3" }
+        it("should be at first") { File.read(file_1).should == "a" }
       end
 
       context "top" do

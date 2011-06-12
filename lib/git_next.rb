@@ -1,3 +1,4 @@
+require "rubygems"
 require "git"
 
 class GitNext
@@ -11,13 +12,18 @@ class GitNext
 
       if File.exist?(@current_path + CONFIG_FILE)
         if args == "top"
+          puts "Moving to Top"
           go_to 0
         elsif args == "prev"
-          go_to config_read_position + 1
+          position = config_read_position
+          go_to position + 1 if position < get_repo_length
         elsif args == "bottom"
+          puts "Moving to Bottom"
           go_to get_repo_length
-        else
-          go_to config_read_position - 1
+        else # next
+          puts "Moving to Next"
+          position = config_read_position
+          go_to position - 1 if position > 0
         end
       else
         go_to get_repo_length
@@ -38,8 +44,12 @@ class GitNext
   end
 
   def self.get_repo_length
+    #TODO clean this
+    current_postion = @git.log.first.sha
     @git.checkout "master"
-    @git.log.map(&:sha).length - 1
+    ret = @git.log.map(&:sha).length - 1
+    @git.checkout current_postion
+    ret 
   end
 
   def self.go_to position
