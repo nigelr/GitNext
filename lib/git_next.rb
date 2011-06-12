@@ -5,7 +5,14 @@ class GitNext
 
   CONFIG_FILE = "/.git/gitnext.config"
 
-  def self.run current_path, args=[]
+  def self.init
+    message = "GitNext initialised"
+    go_to get_repo_length
+    message
+  end
+
+  def self.run current_path, args=""
+    usage_message = "Usage: gitnext [help, init, prev, top, bottom]"
     @current_path = current_path
     if File.exists? File.join @current_path, ".git"
       @git = Git.open @current_path
@@ -13,25 +20,41 @@ class GitNext
       if File.exist?(@current_path + CONFIG_FILE)
         case args
           when "top"
-            puts "Moving to Top"
+            message = "Moved to top"
             go_to 0
           when "prev"
+            message = "Moved to previous"
             position = config_read_position
             go_to position + 1 if position < get_repo_length
           when "bottom"
-            puts "Moving to Bottom"
+            message = "Moved to bottom"
             go_to get_repo_length
-          else # next
-            puts "Moving to Next"
-            position = config_read_position
-            go_to position - 1 if position > 0
+          when "init"
+            message = init()
+          else
+            if args.to_s.empty?
+              message = "Moving to Next"
+              position = config_read_position
+              go_to position - 1 if position > 0
+              message += "\n" + `git show --stat`
+            else
+              message = usage_message
+            end
         end
-      else # initialise
-        go_to get_repo_length
+      else
+        case args
+          when "init"
+            message = init()
+          when "help"
+            message = usage_message
+          else
+            message = "GitNext not initialised\n" + usage_message
+        end
       end
     else
-      puts "Not a git directory"
+      message = "Not a git directory\n" + usage_message
     end
+    message
   end
 
   private
@@ -57,5 +80,4 @@ class GitNext
     @git.checkout "master#{"~#{position}" if position > 0}"
     config_save_position position
   end
-
 end

@@ -40,9 +40,12 @@ describe GitNext do
       @git.add(".")
       @git.commit "commit #4"
     end
+    context "when init" do
+      it("should not create config file") { File.exists?(gitnext_config).should_not be_true }
+    end
 
-    context "have never run gitnext" do
-      before { GitNext.run sample_dir }
+    context "after init" do
+      before { GitNext.run sample_dir, "init" }
 
       it("should go to last commit") { File.read(file_1).should == "a" }
       it("should create config file") { File.exists?(gitnext_config).should be_true }
@@ -102,11 +105,3 @@ describe GitNext do
     end
   end
 end
-
-=begin
-  gitnext
-    options:
-      top
-      bottom
-      prev
-=end
