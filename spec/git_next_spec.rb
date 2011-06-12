@@ -24,21 +24,21 @@ describe GitNext do
       FileUtils::rm_rf(sample_dir) if File.exists?(sample_dir)
 
       Dir.mkdir sample_dir
-      git = Git.init sample_dir
+      @git = Git.init sample_dir
       File.open(file_1, "w") { |f| f.write "a" }
-      git.add(".")
-      git.commit "commit #1"
+      @git.add(".")
+      @git.commit "commit #1"
       File.open(file_1, "w") { |f| f.write "b" }
-      git.add(".")
-      git.commit "commit #2"
+      @git.add(".")
+      @git.commit "commit #2"
       File.open(file_1, "w") { |f| f.write "c" }
       File.open(file_2, "w") { |f| f.write "y" }
-      git.add(".")
-      git.commit "commit #3"
+      @git.add(".")
+      @git.commit "commit #3"
       File.open(file_1, "w") { |f| f.write "d" }
       File.open(file_2, "w") { |f| f.write "z" }
-      git.add(".")
-      git.commit "commit #4"
+      @git.add(".")
+      @git.commit "commit #4"
     end
 
     context "never run gitnext" do
@@ -52,21 +52,29 @@ describe GitNext do
         before { GitNext.run sample_dir }
         it("should go to next version") { File.read(file_1).should == "b" }
         it("config should have 2") { File.read(gitnext_config).should == "2" }
-
       end
 
       context "top" do
-        before { GitNext.run(sample_dir, "top") }
+        before do
+          @git.checkout("master~2")
+          GitNext.run(sample_dir, "top")
+        end
 
         it("should go to top commit") { File.read(gitnext_config).should == "0" }
-        it "should be at master" do
-          File.read(file_1).should == "d"
+        it("should be at master") { File.read(file_1).should == "d" }
+      end
+      describe "bottom" do
+        before do
+          @git.checkout("master~1")
+          GitNext.run(sample_dir, "bottom")
         end
+
+        it("should go to bottom commit") { File.read(gitnext_config).should == "3" }
+        it("should be at last") { File.read(file_1).should == "a" }
       end
     end
   end
 end
-
 
 =begin
   gitnext
