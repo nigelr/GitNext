@@ -28,6 +28,10 @@ class GitNext
         if args == "top"
           git.checkout "master"
           config_save_position 0
+        elsif args == "prev"
+          position = config_read_position + 1
+          git.checkout "master~#{position}"
+          config_save_position position
         elsif args == "bottom"
           go_to_bottom git
         else

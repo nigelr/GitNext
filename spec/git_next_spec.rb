@@ -72,6 +72,15 @@ describe GitNext do
         it("should go to bottom commit") { File.read(gitnext_config).should == "3" }
         it("should be at last") { File.read(file_1).should == "a" }
       end
+      describe "previous (prev)" do
+        before do
+          GitNext.run sample_dir, "top"
+          GitNext.run sample_dir, "prev"
+        end
+
+        it("should go to bottom commit") { File.read(gitnext_config).should == "1" }
+        it("should be at last") { File.read(file_1).should == "c" }
+      end
     end
   end
 end
