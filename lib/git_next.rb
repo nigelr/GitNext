@@ -36,7 +36,11 @@ class GitNext
               message = "Moving to Next"
               position = config_read_position
               go_to position - 1 if position > 0
-              message += "\n" + `git show --stat`
+              git_show = `git show --stat`.split("\n")
+
+              [1,1,1].each {|row| git_show.delete_at row }
+              git_show.pop
+              message += "\n" + git_show.compact.join("\n")
             else
               message = usage_message
             end
@@ -77,7 +81,7 @@ class GitNext
   end
 
   def self.go_to position
-    @git.checkout "master#{"~#{position}" if position > 0}"
+    @git.checkout "master#{"~#{position}" if position > 0}", "--force"
     config_save_position position
   end
 end
