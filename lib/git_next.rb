@@ -19,6 +19,11 @@ class GitNext
     config_save_position git_log.length-1
   end
 
+  def self.go_to(git, position)
+    git.checkout "master#{"~#{position}" if position > 0}"
+    config_save_position position
+  end
+
   def self.run current_path, args=[]
     @current_path = current_path
     if File.exists? File.join @current_path, ".git"
@@ -26,18 +31,13 @@ class GitNext
 
       if File.exist?(@current_path + CONFIG_FILE)
         if args == "top"
-          git.checkout "master"
-          config_save_position 0
+          go_to git, 0
         elsif args == "prev"
-          position = config_read_position + 1
-          git.checkout "master~#{position}"
-          config_save_position position
+          go_to(git, config_read_position + 1)
         elsif args == "bottom"
           go_to_bottom git
         else
-          position = config_read_position - 1
-          git.checkout "master~#{position}"
-          config_save_position position
+          go_to(git, config_read_position - 1)
         end
       else
         go_to_bottom(git)
