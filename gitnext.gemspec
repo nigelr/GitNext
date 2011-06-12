@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name     = 'gitnext'
-  s.version  = '0.1.0'
+  s.version  = '0.1.1'
   s.summary  = 'Simple method to move forward or backwards through a git repo'
   s.platform = Gem::Platform::RUBY
   s.authors  = ["Nigel"]

@@ -40,17 +40,26 @@ describe GitNext do
       @git.add(".")
       @git.commit "commit #4"
     end
+
     context "when init" do
       it("should not create config file") { File.exists?(gitnext_config).should_not be_true }
     end
 
+    context "dirty repo" do
+      before { File.open(file_1, "w") { |f| f.write "1" } }
+      it "should not init" do
+        GitNext.run sample_dir, "init"
+         File.exists?(gitnext_config).should_not be_true
+      end
+    end
+
     context "after init" do
       before { GitNext.run sample_dir, "init" }
-
-      it("should go to last commit") { File.read(file_1).should == "a" }
-      it("should create config file") { File.exists?(gitnext_config).should be_true }
-      it("should create have value of 4") { File.read(gitnext_config).should == "3" }
-
+      context "clean repo" do
+        it("should go to last commit") { File.read(file_1).should == "a" }
+        it("should create config file") { File.exists?(gitnext_config).should be_true }
+        it("should create have value of 4") { File.read(gitnext_config).should == "3" }
+      end
       context "after gitnext initialised" do
         before { GitNext.run sample_dir }
         it("should go to next version") { File.read(file_1).should == "b" }
@@ -96,11 +105,17 @@ describe GitNext do
       describe "previous (prev)" do
         before do
           GitNext.run sample_dir, "top"
-          GitNext.run sample_dir, "prev"
+        end
+        context "clean repo" do
+          before { GitNext.run sample_dir, "prev" }
+          it("should go to bottom commit") { File.read(gitnext_config).should == "1" }
+          it("should be at last") { File.read(file_1).should == "c" }
+        end
+        context "unclean repo" do
+          before { File.open(file_1, "w") { |f| f.write "1" } }
+          it("should not fail if repo unclean") { lambda { GitNext.run sample_dir }.should_not raise_error }
         end
 
-        it("should go to bottom commit") { File.read(gitnext_config).should == "1" }
-        it("should be at last") { File.read(file_1).should == "c" }
       end
     end
   end

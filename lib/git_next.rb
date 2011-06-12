@@ -5,12 +5,6 @@ class GitNext
 
   CONFIG_FILE = "/.git/gitnext.config"
 
-  def self.init
-    message = "GitNext initialised"
-    go_to get_repo_length
-    message
-  end
-
   def self.run current_path, args=""
     usage_message = "Usage: gitnext [help, init, prev, top, bottom]"
     @current_path = current_path
@@ -38,7 +32,7 @@ class GitNext
               go_to position - 1 if position > 0
               git_show = `git show --stat`.split("\n")
 
-              [1,1,1].each {|row| git_show.delete_at row }
+              3.times { git_show.delete_at 1 }
               git_show.pop
               message += "\n" + git_show.compact.join("\n")
             else
@@ -62,6 +56,15 @@ class GitNext
   end
 
   private
+
+  def self.init
+    if @git.status.changed.empty?
+      go_to get_repo_length
+      "GitNext initialised"
+    else
+      "Cannot init with dirty repo"
+    end
+  end
 
   def self.config_save_position value
     File.open(@current_path + CONFIG_FILE, "w") { |f| f.write value }
