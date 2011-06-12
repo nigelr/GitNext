@@ -66,6 +66,13 @@ describe GitNext do
         it("config should have 2") { File.read(gitnext_config).should == "2" }
       end
 
+      describe "remove" do
+        before { GitNext.run sample_dir, "remove" }
+
+        it("should remove gitnext config") { File.exists?(gitnext_config).should_not be_true }
+        it("should be at master") { File.read(file_1).should == "d" }
+      end
+
       context "should not go past top" do
         before do
           GitNext.run(sample_dir, "top")

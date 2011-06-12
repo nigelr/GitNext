@@ -25,6 +25,10 @@ class GitNext
             go_to get_repo_length
           when "init"
             message = init()
+          when "remove"
+            go_to 0
+            File.delete @current_path + CONFIG_FILE
+            message = "Gitnext Removed"
           else
             if args.to_s.empty?
               message = "Moving to Next"
@@ -46,7 +50,7 @@ class GitNext
           when "help"
             message = usage_message
           else
-            message = "GitNext not initialised\n" + usage_message
+            message = "GitNext not initialised"
         end
       end
     else
@@ -60,7 +64,7 @@ class GitNext
   def self.init
     if @git.status.changed.empty?
       go_to get_repo_length
-      "GitNext initialised"
+      "GitNext initialised\nMoved to bottom"
     else
       "Cannot init with dirty repo"
     end
