@@ -1,7 +1,8 @@
 Gem::Specification.new do |s|
   s.name     = 'gitnext'
-  s.version  = '0.1.1'
-  s.summary  = 'Simple method to move forward or backwards through a git repo'
+  s.version  = '0.1.2'
+  s.summary  = 'Use next or previous to navigate through a git repository'
+  s.description = "A simple command line tool to use when doing presentations."
   s.platform = Gem::Platform::RUBY
   s.authors  = ["Nigel"]
   s.email    = ["nigelr@brisbanerails.com"]
