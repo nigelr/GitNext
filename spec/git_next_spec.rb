@@ -61,9 +61,19 @@ describe GitNext do
         it("should create have value of 4") { File.read(gitnext_config).should == "3" }
       end
       context "after gitnext initialised" do
-        before { GitNext.run sample_dir }
-        it("should go to next version") { File.read(file_1).should == "b" }
-        it("config should have 2") { File.read(gitnext_config).should == "2" }
+        context "clean repo" do
+          before { GitNext.run sample_dir }
+          it("should go to next version") { File.read(file_1).should == "b" }
+          it("config should have 2") { File.read(gitnext_config).should == "2" }
+        end
+        context "dirty repo" do
+          before do
+            File.open(file_1, "w") { |f| f.write "1" }
+            GitNext.run sample_dir
+          end
+          it("should go to next version") { File.read(file_1).should == "b" }
+          it("config should have 2") { File.read(gitnext_config).should == "2" }
+        end
       end
 
       describe "remove" do

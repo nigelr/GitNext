@@ -83,7 +83,7 @@ class GitNext
   end
 
   def self.go_to position
-    @git.checkout "master#{"~#{position}" if position > 0}", "--force"
+    `git checkout master~#{position} --force > /dev/null 2>&1`
     config_save_position position
   end
 end
